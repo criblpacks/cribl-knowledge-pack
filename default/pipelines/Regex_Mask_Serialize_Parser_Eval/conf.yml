@@ -1,0 +1,156 @@
+output: default
+groups:
+  wYTkX9:
+    name: KV Toggle (Off if JSON Toggle is ON)
+    description: Create KEY = VALUE format, no spaces in the field names
+    disabled: true
+    index: 4
+  GBaewY:
+    name: JSON Toggle (Off if KV Toggle is ON)
+    disabled: false
+    description: Create JSON format, no spaces in the field names
+    index: 5
+asyncFuncTimeout: 1000
+functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: >
+        Summary: How to parse fields with spaces from events without losing
+        valuable information
+
+        Author: David Maislin
+
+        Date: 2021-07-28
+
+        Sample: Regex_Mask_Serialize_Parser_Eval
+
+
+        Parser: https://docs.cribl.io/docs/parser-function
+
+        Regex Extract: https://docs.cribl.io/docs/regex-extract-function#usage
+
+        Serialize: https://docs.cribl.io/docs/serialize-function
+
+        Parser: https://docs.cribl.io/docs/parser-function
+
+        Mask: https://docs.cribl.io/docs/mask-function
+
+        Eval: https://docs.cribl.io/docs/eval-function
+  - id: serde
+    filter: "true"
+    disabled: true
+    conf:
+      mode: extract
+      type: kvp
+      srcField: _raw
+      cleanFields: false
+      dstField: _raw
+    description: Leave off - Misses field names with spaces and drops fields with the same
+      name.
+  - id: regex_extract
+    filter: "true"
+    disabled: false
+    conf:
+      source: _raw
+      iterations: 100
+      overwrite: true
+      regex: /\[[^\s]+\s(?<step1>.+)\]/
+    description: "Extract part of event to field: step1"
+  - id: regex_extract
+    filter: "true"
+    disabled: false
+    conf:
+      source: step1
+      iterations: 100
+      overwrite: false
+      regex: /(?<_KEY_1>[^=]+?)="(?<_VALUE_1>[^"]+?)"\s*/g
+      fieldNameExpression: name.replace(/\s/g,'_')
+    description: Extract KV Pairs to top level and use the Field Name Format Expression
+  - id: serialize
+    filter: "true"
+    disabled: true
+    conf:
+      type: kvp
+      fields:
+        - "!_*"
+        - "!cribl*"
+        - "!step1"
+        - "!Generated"
+        - "!Received"
+        - "*"
+      dstField: _raw
+      cleanFields: true
+    description: "Toggle: Push KV pairs into _raw as KV"
+    groupId: wYTkX9
+  - id: eval
+    filter: "true"
+    disabled: true
+    conf:
+      add: []
+      remove:
+        - "*"
+      keep:
+        - _*
+        - cribl*
+    description: Drop unnecessary fields
+    groupId: wYTkX9
+  - id: serialize
+    filter: "true"
+    disabled: false
+    conf:
+      type: json
+      dstField: _raw
+      fields:
+        - "!_*"
+        - "!cribl*"
+        - "!step1"
+        - "!Generated"
+        - "!Received"
+        - "*"
+      cleanFields: true
+    description: "Toggle: Push KV pairs into _raw as JSON"
+    groupId: GBaewY
+  - id: serde
+    filter: "true"
+    disabled: false
+    conf:
+      mode: reserialize
+      type: json
+      srcField: _raw
+      fieldFilterExpr: value!='-' && value
+    groupId: GBaewY
+    description: Remove null values and unnecessary fields
+  - id: eval
+    filter: "true"
+    disabled: true
+    conf:
+      add:
+        - name: _raw
+          value: JSON.stringify(_raw)
+    groupId: GBaewY
+    description: "Leave off if 10 is enabled: Why is a JSON object is smaller than a JSON
+      string?"
+  - id: eval
+    filter: "true"
+    disabled: false
+    conf:
+      add:
+        - name: _raw
+          value: JSON.parse(_raw)
+      remove: []
+      keep: []
+    description: "Optional: Turn JSON string into an object literal"
+    groupId: GBaewY
+  - id: eval
+    filter: "true"
+    disabled: false
+    conf:
+      keep:
+        - _*
+        - cribl*
+      remove:
+        - "*"
+      add: []
+    description: Toggle - Cleanup Extracted Fields

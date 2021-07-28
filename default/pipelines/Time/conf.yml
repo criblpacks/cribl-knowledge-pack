@@ -1,0 +1,93 @@
+output: default
+groups: {}
+asyncFuncTimeout: 1000
+functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: >+
+        Summary: Evaluating time with additional example of using strptime and
+        strftime
+
+        Author: David Maislin
+
+        Date: 2021-07-28
+
+        Sample: Time (All samples work - _time= equals the current time)
+
+
+        Note: Due to the nature of JSON serialization we lose some information about the data type of the field.
+
+  - id: eval
+    filter: "true"
+    disabled: false
+    conf:
+      add:
+        - name: _time
+          value: new Date().getTime() / 1000
+        - name: _time2
+          value: Date.now() / 1000
+        - name: _time3
+          value: Date()
+        - name: A_TIME1
+          value: new Date()
+        - name: A_TIME2
+          value: new Date().toISOString()
+        - name: B_Are_They_Equal1
+          value: A_TIME1 === A_TIME2
+        - name: B_Are_They_Equal2
+          value: A_TIME1 == A_TIME2
+        - name: C_Now_They_Are_Equal1
+          value: A_TIME1.toISOString() == A_TIME2
+        - name: C_Now_They_Are_Equal2
+          value: A_TIME1.toISOString() === A_TIME2
+        - name: D_Why1
+          value: JSON.stringify(A_TIME1)
+        - name: D_Why2
+          value: JSON.stringify(A_TIME2)
+        - name: D_Why3
+          value: String(A_TIME1)
+        - name: D_Why4
+          value: String(A_TIME2)
+        - name: E_Because1
+          value: D_Why1 != D_Why2
+        - name: E_Because2
+          value: D_Why1 !== D_Why2
+        - name: F_strptime_will_not_work
+          value: C.Time.strptime(A_TIME1,'%Y-%m-%dT%H:%M:%S.%L')
+        - name: F_strptime_will_work
+          value: C.Time.strptime(A_TIME2,'%Y-%m-%dT%H:%M:%S.%L')
+        - name: F_typeof_ATIME1
+          value: typeof(A_TIME1)
+        - name: F_typeof_ATIME2
+          value: typeof(A_TIME2)
+        - value: A_TIME1 instanceof Date
+          name: F_instanceof_ATIME1
+        - value: A_TIME2 instanceof Date
+          name: F_instanceof_ATIME2
+        - name: G_StrftimeStrptime_Example_a
+          value: C.Time.strftime(C.Time.strptime(A_TIME2,"%Y-%m-%dT%H:%M:%S.%L",false,false),'%s.%L%Z')
+        - name: G_StrftimeStrptime_Example_b_ms
+          value: _time * 1000
+        - name: G_StrftimeStrptime_Example_c_ymd
+          value: "C.Time.strftime(_time ? _time : Date.now() / 1000, '%Y/%m/%d')"
+        - name: G_StrftimeStrptime_Example_d_verbose
+          value: "C.Time.strftime(_time,'YEAR: %Y month: %m day: %d HOUR: %H MIN: %M
+            SEC: %S MS: %L')"
+        - name: H_Example_utc
+          value: new Date().toUTCString()
+        - name: H_Example_locale_string
+          value: new Date().toLocaleString()
+        - name: H_Example_locale_date_string
+          value: new Date().toLocaleDateString()
+        - value: new Date().toLocaleTimeString()
+          name: H_Example_locale_time_string
+        - value: new Date().toString()
+          name: H_Example_string
+        - value: new Date().toTimeString()
+          name: H_Example_time_string
+      remove:
+        - cribl_breaker
+    description: A_TIME1 is a date object, A_TIME2 is a date string.  They look the same,
+      but they are not equal

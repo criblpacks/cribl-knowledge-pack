@@ -1,0 +1,49 @@
+output: default
+groups: {}
+asyncFuncTimeout: 1000
+functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: >-
+        Summary: Demonstrate split, trim, slice, and join
+
+        Author: Brendan Dalpe
+
+        Date: 2021-07-28
+
+        Sample: Stack_Trace
+
+
+        Eval - https://docs.cribl.io/docs/eval-function
+
+
+        References:
+
+        https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split
+
+        https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
+
+        https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
+
+        https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - name: exception
+          value: _raw.split('\n')[0]
+        - name: calling_method
+          value: _raw.split('\n')[1].trim()
+    description: Extract exception and calling_method from stack trace using split and
+      array references
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - name: minified
+          value: _raw.split('\n').slice(0,2).join('\n')
+    description: Only keep the first two lines using the split, slice and join operators
