@@ -1,0 +1,227 @@
+output: default
+groups:
+  Nchw3l:
+    name: "Option 1: Individual Functions"
+    disabled: true
+    description: Extract the code, check if the code should be dropped, cleanup, lookup
+      regex, extract groups
+    index: 1
+  KNry09:
+    name: "Option 2: Using Individual Eval Functions"
+    description: Using Eval and expressions for all the heavy lifting
+    disabled: true
+    index: 2
+  tPNs66:
+    name: "Option 3: Using One Eval Function"
+    description: Extract all the goods in one eval, drop if the code matched the drop lookup
+    disabled: true
+    index: 3
+asyncFuncTimeout: 1000
+functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: >-
+        Summary: Process Cisco ASA events, drop via lookup function, and use a
+        lookup to return a regex to extract fields.
+
+        Author: Jon Rust
+
+        Date: 2021-07-28
+
+        Sample: Regex_Variables_From_Lookups
+
+        Knowledge: [asa_parsing.csv,asa_drops.csv]
+
+
+        Drop: https://docs.cribl.io/docs/drop-function
+
+        Flatten: https://docs.cribl.io/docs/drop-function
+
+        Rename: https://docs.cribl.io/docs/rename-function
+  - id: comment
+    filter: "true"
+    disabled: true
+    conf:
+      comment: Extract the ASA code
+    groupId: Nchw3l
+  - id: regex_extract
+    filter: /%ASA/.test(_raw)
+    disabled: true
+    conf:
+      source: _raw
+      iterations: 100
+      overwrite: false
+      regex: /%ASA-\d+-(?<ASA>\d+)/
+    groupId: Nchw3l
+  - id: comment
+    filter: "true"
+    disabled: true
+    conf:
+      comment: Drop events that match codes in the drop lookup
+    groupId: Nchw3l
+  - id: drop
+    filter: C.Lookup('asa_drops.csv').match(ASA)
+    disabled: true
+    conf: {}
+    final: true
+    groupId: Nchw3l
+  - id: comment
+    filter: "true"
+    disabled: true
+    conf:
+      comment: Clean up _raw (remove up to ASA code)
+    groupId: Nchw3l
+  - id: mask
+    filter: ASA
+    disabled: true
+    conf:
+      rules:
+        - matchRegex: /.*%ASA/
+          replaceExpr: "'%ASA'"
+      fields:
+        - _raw
+    groupId: Nchw3l
+  - id: comment
+    filter: "true"
+    disabled: true
+    conf:
+      comment: Get the regex from regex lookup if it exists
+    groupId: Nchw3l
+  - id: lookup
+    filter: ASA
+    disabled: true
+    conf:
+      matchMode: exact
+      reloadPeriodSec: 60
+      addToEvent: false
+      inFields:
+        - eventField: ASA
+          lookupField: asa_code
+      ignoreCase: false
+      file: asa_parsing.csv
+      outFields:
+        - lookupField: regex
+          eventField: __regex
+    groupId: Nchw3l
+  - id: comment
+    filter: "true"
+    disabled: true
+    conf:
+      comment: Use the returned regex to extract the groups
+    groupId: Nchw3l
+  - id: eval
+    filter: __regex
+    disabled: true
+    conf:
+      add:
+        - name: groups
+          value: _raw.match(__regex).groups
+    groupId: Nchw3l
+  - id: comment
+    filter: "true"
+    disabled: true
+    conf:
+      comment: Extract the ASA code
+    groupId: KNry09
+  - id: eval
+    filter: /%ASA/.test(_raw)
+    disabled: true
+    conf:
+      add:
+        - name: ASA
+          value: _raw.match(/%ASA-\d+-(\d+)/)[1]
+    groupId: KNry09
+  - id: comment
+    filter: "true"
+    disabled: true
+    conf:
+      comment: Drop events that match codes in the drop lookup
+    groupId: KNry09
+  - id: drop
+    filter: C.Lookup('asa_drops.csv').match(ASA)
+    disabled: true
+    conf: {}
+    groupId: KNry09
+  - id: comment
+    filter: "true"
+    disabled: true
+    conf:
+      comment: Clean up _raw (remove up to ASA code)
+    groupId: KNry09
+  - id: eval
+    filter: ASA
+    disabled: true
+    conf:
+      add:
+        - name: _raw
+          value: _raw.replace(/.*%ASA/,'%ASA')
+    groupId: KNry09
+  - id: comment
+    filter: "true"
+    disabled: true
+    conf:
+      comment: Get the regex from regex lookup if it exists
+    groupId: KNry09
+  - id: eval
+    filter: ASA
+    disabled: true
+    conf:
+      add:
+        - name: __regex
+          value: C.Lookup('asa_parsing.csv','asa_code').match(ASA,'regex')
+    groupId: KNry09
+  - id: comment
+    filter: "true"
+    disabled: true
+    conf:
+      comment: Use the returned regex to extract the groups
+    groupId: KNry09
+  - id: eval
+    filter: __regex
+    disabled: true
+    conf:
+      add:
+        - name: groups
+          value: _raw.match(__regex).groups
+    groupId: KNry09
+  - id: eval
+    filter: /%ASA/.test(_raw)
+    disabled: true
+    conf:
+      add:
+        - name: ASA
+          value: _raw.match(/%ASA-\S*?-(\d+)/)[1]
+        - name: __lookup_result
+          value: "C.Lookup('asa_drops.csv').match(ASA) ? '__DROPIT' :
+            C.Lookup('asa_parsing.csv','asa_code').match(ASA,'regex')"
+        - name: _raw
+          value: "__lookup_result != '__DROPIT' ? _raw.replace(/.*%ASA/,'%ASA') :
+            _raw"
+        - name: groups
+          value: "__lookup_result != '__DROPIT' ? _raw.match(__lookup_result).groups
+            : undefined"
+    groupId: tPNs66
+  - id: drop
+    filter: __lookup_result == '__DROPIT'
+    disabled: true
+    conf: {}
+    final: true
+    groupId: tPNs66
+  - id: flatten
+    filter: groups
+    disabled: null
+    conf:
+      fields:
+        - groups
+      prefix: ""
+      depth: 5
+      delimiter: _
+  - id: rename
+    filter: "true"
+    disabled: null
+    conf:
+      wildcardDepth: 5
+      baseFields: []
+      renameExpr: "name.startsWith('groups_') ? name.replace('groups_','') : name"

@@ -1,0 +1,5 @@
+host,destination
+[1-3],splunk
+toronto|vancouver|calgary|alberta|manitoba,elastic
+finance,datadog
+.+,s3

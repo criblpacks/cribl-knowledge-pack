@@ -1,0 +1,31 @@
+output: default
+groups: {}
+asyncFuncTimeout: 1000
+functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: >
+        Summary: Perform hex to number conversion using the Mask function.
+
+        Author: Brendan Dalpe & David Maislin
+
+        Date: 2021-07-28
+
+        Sample: Mask_Hex_Decode
+
+
+        ° Mask - https://docs.cribl.io/docs/mask-function
+
+        ° C.Decode.hex - https://docs.cribl.io/docs/cribl-reference#span-iddecode-cdecode--data-decoding-functions-span
+  - id: mask
+    filter: "true"
+    disabled: null
+    conf:
+      rules:
+        - matchRegex: /(?<=:\s)(\w+)/g
+          replaceExpr: "`${C.Decode.hex(g1)}`"
+      fields:
+        - _raw
+    description: Use the C.Decode.hex() function

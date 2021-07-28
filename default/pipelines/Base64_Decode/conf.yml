@@ -1,0 +1,60 @@
+output: default
+groups: {}
+asyncFuncTimeout: 1000
+functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: >
+        Summary:  Decode a section of an event containing encoded data.
+
+        Author: David Maislin & Brendan Dalpe
+
+        Date: 2021-07-28
+
+        Sample: Base64_Decode
+
+
+        ° Mask:     https://docs.cribl.io/docs/mask-function
+
+        ° C.Decode: https://docs.cribl.io/docs/cribl-reference#span-iddecode-cdecode--data-decoding-functions-span
+
+        ° Character encodings: https://nodejs.org/api/buffer.html#buffer_buffers_and_character_encodings
+
+
+        References:
+
+        ° https://newbedev.com/regex-lookahead-lookbehind-and-atomic-groups
+  - id: mask
+    filter: "true"
+    disabled: true
+    conf:
+      rules:
+        - matchRegex: /Process Command
+            Line:\s+(.+(?=-EncodedCommand))(-EncodedCommand\s)([^\s]+)(.+)/
+          replaceExpr: "`Process Command Line: ${g1}${g2}${C.Decode.base64(g3,
+            'utf16le')}${g4}`"
+      fields:
+        - _raw
+    description: "Option 1: Positive lookahead and three capture groups"
+  - id: mask
+    filter: "true"
+    disabled: true
+    conf:
+      rules:
+        - matchRegex: /(.+-EncodedCommand\s+)(.+)/
+          replaceExpr: "`${g1}${C.Decode.base64(g2, 'utf16le')}`"
+      fields:
+        - _raw
+    description: "Option 2: Two capture groups"
+  - id: mask
+    filter: "true"
+    disabled: true
+    conf:
+      rules:
+        - matchRegex: /(?<=-EncodedCommand\s)(.+)/
+          replaceExpr: "`${C.Decode.base64(g1, 'utf16le')}`"
+      fields:
+        - _raw
+    description: "Option 3: Positive lookbehind and one capture group"

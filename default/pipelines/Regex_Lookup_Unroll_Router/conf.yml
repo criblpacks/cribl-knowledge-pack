@@ -1,0 +1,83 @@
+output: default
+groups: {}
+asyncFuncTimeout: 1000
+functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: >-
+        Summary: Field extraction, regex lookup, unrolling arrays, adding tags,
+        and serializing the fields back to _raw.
+
+        Author: David Maislin
+
+        Date: 2021-07-28
+
+        Sample: Regex_Lookup_Unroll_Router
+
+        Knowledge: Regex_Lookup_Unroll_Router.csv
+
+
+        Note:  In Destinations create an Output Router with Filters Expressions that match the destination fields (destination=='splunk').  Source/Destinations will be added to packs soon!
+
+
+        Regex Extract: https://docs.cribl.io/docs/regex-extract-function#usage
+
+        Lookup: https://docs.cribl.io/docs/lookup-function
+
+        Unroll: https://docs.cribl.io/docs/unroll-function
+
+        Eval: https://docs.cribl.io/docs/eval-function
+
+        Serialize: https://docs.cribl.io/docs/serialize-function
+
+        Output Router: https://docs.cribl.io/docs/destinations-output-router
+  - id: regex_extract
+    filter: "true"
+    disabled: null
+    conf:
+      source: _raw
+      iterations: 100
+      overwrite: false
+      regex: /host="(?<host>[^"]+)"/
+    description: Extract host from the _raw event using Regex
+  - id: lookup
+    filter: "true"
+    disabled: false
+    conf:
+      matchMode: regex
+      matchType: all
+      reloadPeriodSec: 60
+      addToEvent: false
+      inFields:
+        - eventField: host
+      ignoreCase: false
+      file: Regex_Lookup_Unroll_Router.csv
+    description: Pass the host field to the lookup table and return all destinations as an
+      array
+  - id: unroll
+    filter: "true"
+    disabled: false
+    conf:
+      srcExpr: destination
+      dstField: destination
+    description: Unroll the destination array
+  - id: eval
+    filter: destination=='splunk'
+    disabled: null
+    conf:
+      add:
+        - name: sourcetype
+          value: "'mysourcetype'"
+    description: Add a sourcetype based on a filter
+  - id: serialize
+    filter: "true"
+    disabled: null
+    conf:
+      type: json
+      dstField: _raw
+      fields:
+        - host
+        - destination
+    description: Rewrite the fields to _raw as a JSON object

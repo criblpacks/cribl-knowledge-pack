@@ -1,0 +1,102 @@
+id: default
+groups: {}
+routes:
+  - id: mj4FMw
+    name: Time
+    final: true
+    disabled: false
+    pipeline: Time
+    description: Various methods to manipulate time
+    clones: []
+    filter: /^<\d+>/.test(_raw)
+    output: default
+  - id: OATo9r
+    name: Regex_Mask_Serialize_Parser_Eval
+    final: true
+    disabled: false
+    pipeline: Regex_Mask_Serialize_Parser_Eval
+    description: Demonstrate approaches to extract fields properly without losing data
+    clones: []
+    filter: /^\d\s\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\s/.test(_raw)
+    output: default
+  - id: rAju1T
+    name: Base64_Decode
+    final: true
+    disabled: false
+    pipeline: Base64_Decode
+    description: Decoding data using Mask
+    clones: []
+    filter: /^\d{2}\/\d{2}\/\d{4}\s\d{2}:\d{2}:\d{2}/.test(_raw)
+    output: default
+  - id: EHqCIY
+    name: Regex_Lookup_Unroll_Router
+    final: true
+    disabled: false
+    pipeline: Regex_Lookup_Unroll_Router
+    description: Tag and route data using lookup tables, tags, and output routers
+    clones: []
+    filter: _raw.match(/^host="/igm)
+    output: default
+  - id: 9usD1V
+    name: Stack_Trace
+    final: true
+    disabled: false
+    pipeline: Stack_Trace
+    description: Demonstrate split, trim, slice, and join
+    clones: []
+    filter: _raw.startsWith(/Exception in thread/)
+    output: default
+  - id: wTYe49
+    name: Mask_Hex_Decode
+    final: true
+    disabled: false
+    pipeline: Mask_Hex_Decode
+    description: ""
+    clones: []
+    filter: _raw.match(/^#####\s\w+\s#####/)
+    output: default
+  - id: STYCoN
+    name: Mask_Multiple_Wildcard_Fields
+    final: true
+    disabled: false
+    pipeline: Mask_Multiple_Wildcard_Fields
+    description: ""
+    clones: []
+    filter: _raw.includes('crypto_group')
+    output: default
+  - id: rF6iJy
+    name: Regex_Variables_From_Lookups
+    final: true
+    disabled: false
+    pipeline: Regex_Variables_From_Lookups
+    description: ""
+    clones: []
+    filter: /%ASA/.test(_raw)
+    output: default
+  - id: T1Dc0I
+    name: Schema_Validation
+    final: true
+    disabled: false
+    pipeline: Schema_Validation
+    description: ""
+    clones: []
+    filter: _raw.includes('firstName')
+    output: default
+  - id: wKGlDi
+    name: Spread_Operator
+    final: true
+    disabled: false
+    pipeline: Spread_Operator
+    description: ""
+    clones: []
+    filter: RESPONSE_BODY_BYTES
+    output: default
+  - id: default
+    name: default
+    final: true
+    disabled: false
+    pipeline: main
+    description: ""
+    clones: []
+    filter: "true"
+    output: default

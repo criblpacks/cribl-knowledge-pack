@@ -1,0 +1,45 @@
+output: default
+groups: {}
+asyncFuncTimeout: 1000
+functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: >
+        Summary: Apply a Mask function (md5) to all values that can be located
+        anywhere in the object literal using multiple wildcards.
+
+        Author: David Maislin
+
+        Date: 2021-07-28
+
+        Sample: Mask_Multiple_Wildcard_Fields
+
+
+        References:
+
+
+        ° http://benalman.com/news/2010/03/theres-no-such-thing-as-a-json/
+
+        ° https://stackoverflow.com/questions/2904131/what-is-the-difference-between-json-and-object-literal-notation
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - name: _raw
+          value: JSON.parse(_raw)
+    description: Turn JSON string into an object literal.  Can also be done with Parser
+      using _raw as both source and destination
+  - id: mask
+    filter: "true"
+    disabled: false
+    conf:
+      rules:
+        - matchRegex: /(.+)/
+          replaceExpr: C.Mask.md5(g1)
+      fields:
+        - _raw.*.crypto_group_*
+    description: Use two wildcards to look for the matching fields inside the object
+      literal and mask all values (.+) for the only gapture group g1

@@ -1,0 +1,40 @@
+output: default
+groups: {}
+asyncFuncTimeout: 1000
+functions:
+  - id: comment
+    filter: "true"
+    disabled: null
+    conf:
+      comment: >-
+        Summary: Validates that the JSON data is compliant with the provided
+        schema.
+
+        Author: Brendan Dalpe
+
+        Date: 2021-07-28
+
+        Sample: Schema_Validation
+
+        Knowledge: sample_schema
+
+
+        ° C.Schema - https://docs.cribl.io/docs/cribl-reference#cschema--schema-functions
+  - id: serde
+    filter: "true"
+    disabled: null
+    conf:
+      mode: extract
+      type: json
+      srcField: _raw
+      dstField: _raw
+    description: "Turn JSON string into an object literal.  Can be done with Eval Function:
+      JSON.parse(_raw) too."
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - value: C.Schema('sample_schema').validate(_raw)
+          name: is_valid_schema
+    description: Validate against the sample_schema under Knowledge/Schemas

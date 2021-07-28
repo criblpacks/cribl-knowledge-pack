@@ -1,0 +1,3 @@
+asa_code,regex
+305011,dynamic (?<asa_proto>\w+) \w+ from \w+:(?<asa_from_ip>[0-9./]+) to \w+:(?<asa_to_ip>[0-9./]+)
+305013,outbound (?<asa_proto>\w+) \w+ from \w+:(?<asa_from_ip>[0-9./]+) to \w+:(?<asa_to_ip>[0-9./]+)
