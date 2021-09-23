@@ -45,13 +45,13 @@ The Knowledge Pack is easiest to use like this:
 
 ## Adjust the UI
 ---
-When you first open the Knowledge Pack, the Routes tab should be selected. Use the column selector (<img valign="middle" width="24" height="18" src="https://github.com/abetones/cribl-knowledge-pack/blob/main/blob/kp-selector.png?raw=true">) to display the Description column and hide the Filter and Pipeline/Output columns. This lets you see and compare the Routes' Descriptions.
+When you first open the Knowledge Pack, the Routes tab should be selected. Use the column selector (<img valign="middle" width="24" height="18" src="https://github.com/criblpacks/cribl-knowledge-pack/blob/main/blob/kp-selector.png?raw=true">) to display the Description column and hide the Filter and Pipeline/Output columns. This lets you see and compare the Routes' Descriptions.
 
-![Routes with Descriptions visible](https://github.com/abetones/cribl-knowledge-pack/blob/main/blob/kp-routes-selector.png?raw=true)
+![Routes with Descriptions visible](https://github.com/criblpacks/cribl-knowledge-pack/blob/main/blob/kp-routes-selector.png?raw=true)
 
 Once you display your first Pipeline, use the column selector to display Description and hide Filter. These display settings will now apply to all Pipelines.
 
-![Pipelines with Descriptions visible](https://github.com/abetones/cribl-knowledge-pack/blob/main/blob/kp-pipeline-selector.png?raw=true)
+![Pipelines with Descriptions visible](https://github.com/criblpacks/cribl-knowledge-pack/blob/main/blob/kp-pipeline-selector.png?raw=true)
 
 ## Workflow
 ---
